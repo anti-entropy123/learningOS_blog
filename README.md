@@ -2,6 +2,29 @@
 2022 OS 训练营每日进度记录. 
 慢慢来, 比较快. 不贪多, 力求弄懂眼前遇到的问题. 
 
+## day 10
+### 计划
+1. 今天一定要搞完实验3. 
+
+### 成果
+1. 遇到了各种各样的小问题, 例如: 在实现 write 系统调用的时候, 我一开始这么写的,
+```rs
+let _user_buf = unsafe { String::from_raw_parts(buf as *mut u8, len, len) };
+print!("{}", user_buf);
+```
+但是这行代码在第一次执行时没问题, 第二次执行的话就会出错 (哪怕是同一个程序传同样的参数).
+正确的实现是:
+```rs
+let user_buf = {
+    let slice = unsafe { core::slice::from_raw_parts(buf as *const u8, len) };
+    core::str::from_utf8(slice).unwrap()
+};
+print!("{}", user_buf);
+```
+具体原因还不清楚, 后续有机会调查一下.
+2. 实现了按时间片轮转调度任务, 实现的过程中在 Rust 引用借用上花了不少时间, 发现个小窍门: 如果对同一个结构体读写访问很复杂, 不妨以元组的形式批量把成员读到局部变量中, 大概率能简化引用借用的问题. 
+3. 实现简单调度后, 原本没有问题的 gettimeofday 接口竟然不 work 了, 明天继续 debug.
+
 ## day 9
 ### 计划
 1. 今天目测虽然不闲, 但是不搞完实验3不甘心, 一定要弄完. 
